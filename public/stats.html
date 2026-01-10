@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics | Elaina API</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fff; color: #000; overflow-x: hidden; }
+        .bg-grid { position: fixed; inset: 0; z-index: -1; background-image: linear-gradient(#0000001a 1.5px, transparent 1.5px), linear-gradient(90deg, #0000001a 1.5px, transparent 1.5px); background-size: 40px 40px; mask-image: radial-gradient(circle at center, black 60%, transparent 100%); }
+        .stat-card { border: 2px solid #000; background: #fff; padding: 1.5rem; position: relative; }
+        .time-box { border-left: 3px solid #000; padding-left: 12px; }
+        .chart-container { position: relative; height: 320px; width: 100%; }
+        .badge-db { background: #000; color: #fff; padding: 2px 8px; font-size: 8px; font-weight: 800; text-transform: uppercase; }
+    </style>
+</head>
+<body class="p-6 md:p-16">
+    <div class="bg-grid"></div>
+    <div class="max-w-6xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 border-b-4 border-black pb-10 gap-8">
+            <div class="flex-1">
+                <a href="/" class="text-[10px] font-black underline uppercase tracking-widest opacity-40 hover:opacity-100 transition">← Back Home</a>
+                <h1 class="text-6xl font-black uppercase tracking-tighter mt-2 italic leading-none">Status</h1>
+                <p id="t-date" class="text-xs font-bold mt-4 tracking-widest uppercase opacity-60">---</p>
+            </div>
+            <div class="grid grid-cols-3 gap-8">
+                <div class="time-box"><p class="text-[9px] font-black uppercase opacity-40 mb-1">WIB</p><p id="t-wib" class="text-sm font-black font-mono">00:00:00</p></div>
+                <div class="time-box"><p class="text-[9px] font-black uppercase opacity-40 mb-1">WITA</p><p id="t-wita" class="text-sm font-black font-mono">00:00:00</p></div>
+                <div class="time-box"><p class="text-[9px] font-black uppercase opacity-40 mb-1">WIT</p><p id="t-wit" class="text-sm font-black font-mono">00:00:00</p></div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="stat-card">
+                <p class="text-[10px] font-black uppercase opacity-40 mb-1">Database</p>
+                <div class="flex items-center gap-2">
+                    <span class="badge-db">Upstash</span>
+                    <p id="v-db-mem" class="text-sm font-black">0B</p>
+                </div>
+            </div>
+            <div class="stat-card"><p class="text-[10px] font-black uppercase opacity-40 mb-1">Live Requests</p><p id="v-req" class="text-3xl font-black tracking-tighter">0</p></div>
+            <div class="stat-card"><p class="text-[10px] font-black uppercase opacity-40 mb-1">Avg Latency</p><p id="v-lat" class="text-3xl font-black tracking-tighter">0ms</p></div>
+            <div class="stat-card"><p class="text-[10px] font-black uppercase opacity-40 mb-1">Total Keys</p><p id="v-db-keys" class="text-3xl font-black tracking-tighter">0</p></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-2 stat-card">
+                <div class="flex justify-between items-center mb-8">
+                    <p class="text-[10px] font-black uppercase opacity-40 tracking-[0.2em]">Activity Flow (Live)</p>
+                    <div class="flex gap-4">
+                        <p class="text-[9px] font-black uppercase flex items-center gap-1.5"><span class="w-2 h-2 bg-black"></span> Request</p>
+                        <p class="text-[9px] font-black uppercase flex items-center gap-1.5"><span class="w-2 h-2 bg-blue-500"></span> Latency</p>
+                    </div>
+                </div>
+                <div class="chart-container"><canvas id="analyticsChart"></canvas></div>
+            </div>
+            <div class="stat-card h-full">
+                <p class="text-[10px] font-black uppercase opacity-40 mb-6 tracking-widest">Hardware & Environment</p>
+                <div class="space-y-6">
+                    <div><p class="text-[9px] font-black opacity-30 uppercase mb-1">CPU</p><p id="v-cpu" class="text-[11px] font-bold leading-tight truncate">---</p></div>
+                    <div><p class="text-[9px] font-black opacity-30 uppercase mb-1">Region</p><p id="v-region" class="text-[11px] font-bold uppercase">---</p></div>
+                    <div><p class="text-[9px] font-black opacity-30 uppercase mb-1">Memory</p><p id="v-ram" class="text-sm font-black tracking-tighter">---</p></div>
+                    <div><p class="text-[9px] font-black opacity-30 uppercase mb-1">Uptime</p><p id="v-uptime" class="text-sm font-black tracking-tighter text-red-600">---</p></div>
+                    <div class="pt-4 border-t-2 border-black border-dashed">
+                        <p class="text-[9px] font-black opacity-40 uppercase mb-1">System Load</p>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 bg-gray-100 h-2 border border-black overflow-hidden">
+                                <div id="load-bar" class="bg-black h-full transition-all duration-700" style="width: 0%"></div>
+                            </div>
+                            <p id="v-load" class="text-[10px] font-black">0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+        function updateTime() {
+            const now = new Date();
+            const format = (tz) => now.toLocaleTimeString('id-ID', { hour12: false, timeZone: tz });
+            document.getElementById('t-wib').innerText = format('Asia/Jakarta');
+            document.getElementById('t-wita').innerText = format('Asia/Makassar');
+            document.getElementById('t-wit').innerText = format('Asia/Jayapura');
+            document.getElementById('t-date').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        }
+        setInterval(updateTime, 1000); updateTime();
+
+        async function refresh() {
+            try {
+                const r = await fetch('/api/stats');
+                const d = await r.json();
+                
+                document.getElementById('v-req').innerText = d.requests.toLocaleString();
+                document.getElementById('v-lat').innerText = d.latency;
+                document.getElementById('v-region').innerText = d.region;
+                document.getElementById('v-uptime').innerText = d.system.uptime;
+                document.getElementById('v-cpu').innerText = d.system.cpu;
+                document.getElementById('v-ram').innerText = d.system.ram;
+                document.getElementById('v-load').innerText = d.system.load;
+                document.getElementById('v-db-mem').innerText = d.db.memory;
+                document.getElementById('v-db-keys').innerText = d.db.keys;
+                document.getElementById('load-bar').style.width = Math.min(parseFloat(d.system.load) * 20, 100) + '%';
+
+                const reqData = d.analytics.map(x => x.r);
+                const latData = d.analytics.map(x => x.l);
+
+                const ctx = document.getElementById('analyticsChart').getContext('2d');
+                if (chart) chart.destroy();
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: d.analytics.map((_, i) => i + 1),
+                        datasets: [
+                            {
+                                label: 'Requests',
+                                data: reqData,
+                                borderColor: '#000',
+                                borderWidth: 3,
+                                pointRadius: 0,
+                                tension: 0.2,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Latency',
+                                data: latData,
+                                borderColor: '#3b82f6',
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                tension: 0.4,
+                                backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                                fill: true,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { 
+                                type: 'linear', position: 'left',
+                                beginAtZero: false, // Penting: Agar grafik mengikuti angka request asli
+                                grid: { color: '#f0f0f0' },
+                                ticks: { font: { weight: 'bold', size: 10 } }
+                            },
+                            y1: {
+                                type: 'linear', position: 'right',
+                                beginAtZero: true,
+                                grid: { drawOnChartArea: false },
+                                ticks: { font: { weight: 'bold', size: 10, color: '#3b82f6' } }
+                            },
+                            x: { grid: { display: false }, ticks: { display: false } }
+                        }
+                    }
+                });
+            } catch(e) {}
+        }
+        refresh();
+        setInterval(refresh, 10000);
+    </script>
+</body>
+</html>

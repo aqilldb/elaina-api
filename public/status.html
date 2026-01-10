@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status | Elaina</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;800&display=swap" rel="stylesheet">
+</head>
+<body class="bg-white p-10 font-['Plus_Jakarta_Sans']">
+    <div class="max-w-4xl mx-auto">
+        <a href="/" class="text-[10px] font-black underline uppercase mb-10 inline-block tracking-widest">← Return Home</a>
+        <h1 class="text-3xl font-black uppercase mb-10 tracking-tighter">API Infrastructure Status</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-center">
+            <div class="border-2 border-black p-6 bg-gray-50"><p class="text-[9px] font-black opacity-40 uppercase mb-2">Service Status</p><p class="text-lg font-bold text-green-600">OPERATIONAL</p></div>
+            <div class="border-2 border-black p-6"><p class="text-[9px] font-black opacity-40 uppercase mb-2">Uptime Rate</p><p class="text-lg font-bold">99.98%</p></div>
+            <div class="border-2 border-black p-6"><p class="text-[9px] font-black opacity-40 uppercase mb-2">Average Ping</p><p id="v-lat" class="text-lg font-bold">0ms</p></div>
+        </div>
+        <div class="border-2 border-black p-8 bg-white"><canvas id="c"></canvas></div>
+    </div>
+    <script>
+        fetch('/api/stats').then(r=>r.json()).then(d=>{
+            document.getElementById('v-lat').innerText = d.latency;
+            new Chart(document.getElementById('c'), {
+                type: 'line',
+                data: { labels: d.history.map((_,i)=>i), datasets: [{ label: 'Latency (ms)', data: d.history, borderColor: '#000', borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0.3 }] },
+                options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#f0f0f0' } }, x: { display: false } } }
+            });
+        });
+    </script>
+</body>
+</html>
