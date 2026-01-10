@@ -13,7 +13,7 @@ let serverRegion = "Detecting...";
 
 axios.get('http://ip-api.com/json/').then(res => {
     serverRegion = `${res.data.city}, ${res.data.countryCode}`;
-}).catch(() => { serverRegion = "Localhost"; });
+}).catch(() => { serverRegion = "Global"; });
 
 app.use(async (req, res, next) => {
     if (req.path.startsWith('/api/')) {
@@ -23,25 +23,27 @@ app.use(async (req, res, next) => {
             const total = await redis.incr('requests');
             const data = JSON.stringify({ l: duration, r: total, t: Date.now() });
             await redis.lpush('analytics_history', data);
-            await redis.ltrim('analytics_history', 0, 29);
+            await redis.ltrim('analytics_history', 0, 19);
         });
     }
     next();
 });
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(router);
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 app.get('/api/stats', async (req, res) => {
     try {
         const requests = await redis.get('requests') || 0;
         const rawHistory = await redis.lrange('analytics_history', 0, -1);
         const history = rawHistory.map(x => JSON.parse(x)).reverse();
-        
         const avgLat = history.length ? (history.reduce((a,b)=>a+b.l,0)/history.length).toFixed(0) : 0;
         const totalMem = os.totalmem(), freeMem = os.freemem(), usedMem = totalMem - freeMem, cpus = os.cpus();
         const uptimeSeconds = Math.floor((Date.now() - startTime) / 1000);
-
         const dbInfo = await redis.info();
         const dbMemory = dbInfo.match(/used_memory_human:(.*?)\r/)?.[1] || "0B";
         const dbKeys = await redis.dbsize();
@@ -69,4 +71,5 @@ app.get('/api/config', (req, res) => res.json(list));
 app.get('/docs', (req, res) => res.sendFile(path.join(__dirname, 'public', 'docs.html')));
 app.get('/stats', (req, res) => res.sendFile(path.join(__dirname, 'public', 'stats.html')));
 
-app.listen(process.env.PORT || 3000, () => console.log(`Server: 3000`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
