@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elaina's API</title>
+    <title>Ambit's API</title>
     <link rel="icon" href="https://cdn.nefusoft.cloud/7PXan.jpg" type="image/jpeg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fff; color: #000; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fff; color: #000; transition: background-color 0.3s, color 0.3s; }
         .bg-grid { 
             position: fixed; 
             inset: 0; 
@@ -19,36 +19,207 @@
             background-size: 20px 20px; 
             -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,1) 20%, transparent 55%);
             mask-image: radial-gradient(circle at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,1) 20%, transparent 55%);
+            transition: background-image 0.3s;
         }
-        .jp-text { position: fixed; top: 10%; right: 5%; writing-mode: vertical-rl; font-size: 8vw; font-weight: 900; color: rgba(0,0,0,0.03); z-index: -1; pointer-events: none; }
-        .stat-box { border: 2px solid #000; background: #fff; padding: 1.5rem; position: relative; overflow: hidden; }
-        .stat-box::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(#000 0.8px, transparent 0.8px); background-size: 8px 8px; opacity: 0.05; }
-        .elaina-img { width: 320px; height: 160px; object-fit: cover; border: 2px solid #000; box-shadow: 6px 6px 0px #000; }
+        .jp-text { position: fixed; top: 10%; right: 5%; writing-mode: vertical-rl; font-size: 8vw; font-weight: 900; color: rgba(0,0,0,0.03); z-index: -1; pointer-events: none; transition: color 0.3s; }
+        .stat-box { border: 2px solid #000; background: #fff; padding: 1.5rem; position: relative; overflow: hidden; transition: background-color 0.3s, border-color 0.3s; }
+        .stat-box::after { content: ''; position: absolute; inset: 0; background-image: radial-gradient(#000 0.8px, transparent 0.8px); background-size: 8px 8px; opacity: 0.05; transition: background-image 0.3s; }
+        .elaina-img { width: 320px; height: 160px; object-fit: cover; border: 2px solid #000; box-shadow: 6px 6px 0px #000; transition: border-color 0.3s, box-shadow 0.3s; }
+
+        /* Dark mode styles - warna hitam dan orange */
+        body.dark-mode {
+            background: #000;
+            color: #ff8800;
+        }
+        body.dark-mode .bg-grid {
+            background-image: 
+                linear-gradient(#ff88001a 1px, transparent 1px), 
+                linear-gradient(90deg, #ff88001a 1px, transparent 1px);
+        }
+        body.dark-mode .jp-text {
+            color: rgba(255, 136, 0, 0.1);
+        }
+        body.dark-mode .stat-box {
+            border-color: #ff8800;
+            background: #111;
+        }
+        body.dark-mode .stat-box svg {
+            stroke: #ff8800;
+            fill: #ff8800;
+        }
+        body.dark-mode .stat-box::after {
+            background-image: radial-gradient(#ff8800 0.8px, transparent 0.8px);
+        }
+        body.dark-mode .elaina-img {
+            border-color: #ff8800;
+            box-shadow: 6px 6px 0px #ff8800;
+        }
+        body.dark-mode header,
+        body.dark-mode footer {
+            background: #111 !important;
+            border-color: #ff8800 !important;
+        }
+        body.dark-mode header h1,
+        body.dark-mode footer p {
+            color: #ff8800;
+        }
+        body.dark-mode nav a {
+            color: #ff8800;
+        }
+        body.dark-mode nav a.text-red-500 {
+            color: #ff8800 !important;
+        }
+        body.dark-mode .bg-white {
+            background: #111 !important;
+        }
+        body.dark-mode .text-gray-500 {
+            color: #ff8800 !important;
+            opacity: 0.7;
+        }
+        body.dark-mode .border-black {
+            border-color: #ff8800 !important;
+        }
+        body.dark-mode .bg-black {
+            background: #ff8800 !important;
+            color: #000 !important;
+            border-color: #ff8800 !important;
+        }
+        body.dark-mode .bg-black:hover {
+            background: transparent !important;
+            color: #ff8800 !important;
+        }
+        body.dark-mode .text-black {
+            color: #ff8800 !important;
+        }
+        body.dark-mode .hover\:bg-black:hover {
+            background-color: #ff8800 !important;
+            color: #000 !important;
+        }
+        body.dark-mode .group-hover\:text-white:hover * {
+            color: #000 !important;
+        }
+        body.dark-mode .grayscale {
+            filter: grayscale(0%);
+        }
+        body.dark-mode .border-gray-400 {
+            border-color: #ff8800 !important;
+        }
+        body.dark-mode a[href*="github"] svg,
+        body.dark-mode a[href*="wa.me"] svg {
+            fill: #ff8800;
+        }
+
+        /* Toggle switch styling */
+        .dark-mode-toggle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+        .dark-mode-toggle input {
+            display: none;
+        }
+        .toggle-slider {
+            width: 40px;
+            height: 20px;
+            background-color: #ccc;
+            border-radius: 34px;
+            position: relative;
+            transition: .4s;
+            border: 2px solid #000;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 2px;
+            bottom: 1px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+            border: 1px solid #000;
+        }
+        input:checked + .toggle-slider {
+            background-color: #ff8800;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(18px);
+            background-color: #000;
+        }
+        body.dark-mode .toggle-slider {
+            background-color: #ff8800;
+            border-color: #ff8800;
+        }
+        body.dark-mode .toggle-slider:before {
+            background-color: #000;
+            border-color: #ff8800;
+        }
+        
+        /* Footer layout - card lebih kecil */
+        .architect-row {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+        
+        .architect-bottom {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        /* Ukuran card lebih kecil */
+        .architect-card {
+            padding: 0.75rem 1.25rem !important;
+            gap: 0.75rem !important;
+        }
+        
+        .architect-card img {
+            width: 40px !important;
+            height: 40px !important;
+        }
+        
+        .architect-card .font-bold.text-sm {
+            font-size: 0.8rem !important;
+        }
+        
+        .architect-card .text-\[10px\] {
+            font-size: 0.65rem !important;
+        }
     </style>
 </head>
 <body class="overflow-x-hidden">
     <div class="bg-grid"></div>
     <div class="jp-text">魔女の旅々</div>
     <header class="p-6 border-b-2 border-black flex justify-between items-center bg-white sticky top-0 z-50">
-        <h1 class="font-extrabold text-lg tracking-tighter uppercase">Elaina's API</h1>
-        <nav class="flex gap-6 text-[10px] font-bold uppercase tracking-widest">
+        <h1 class="font-extrabold text-lg tracking-tighter uppercase">Ambit's API</h1>
+        <nav class="flex gap-6 text-[10px] font-bold uppercase tracking-widest items-center">
             <a href="/docs" class="hover:underline">Docs</a>
             <a href="/stats" class="hover:underline text-red-500">Stats</a>
+            <!-- Dark mode toggle switch -->
+            <label class="dark-mode-toggle">
+                <input type="checkbox" id="darkModeToggle">
+                <span class="toggle-slider"></span>
+            </label>
         </nav>
     </header>
     <main class="flex flex-col items-center py-20 px-6">
-        <img src="https://cdn.nefusoft.cloud/92zVH.jpg" class="elaina-img mb-10" alt="Elaina">
+        <img src="https://cdn.nefusoft.cloud/01QFp.jpg" class="elaina-img mb-10" alt="Elaina">
         <div class="text-center max-w-xl mb-16">
-            <h2 class="text-3xl font-extrabold mb-4 tracking-tight uppercase leading-tight">Elaina's Interface</h2>
+            <h2 class="text-3xl font-extrabold mb-4 tracking-tight uppercase leading-tight">Ambit's Interface</h2>
             <p class="text-xs text-gray-500 font-medium leading-relaxed mb-8">Penyedia layanan API gratis yang stabil, cepat, dan mudah diintegrasikan untuk kebutuhan project kamu. From Developer for Developer.</p>
             <div class="flex flex-wrap justify-center gap-3">
                 <a href="/docs" class="bg-black text-white px-6 py-3.5 text-[11px] font-black border-2 border-black hover:bg-white hover:text-black transition flex items-center gap-2 uppercase">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                     Explore Library
                 </a>
-                <a href="https://github.com/alip-jmbd/elaina-api" target="_blank" class="bg-white text-black px-6 py-3.5 text-[11px] font-black border-2 border-black hover:bg-black hover:text-white transition flex items-center gap-2 uppercase">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                    Source Code
+                <a href="https://wa.me/6281234567890" target="_blank" class="bg-white text-black px-6 py-3.5 text-[11px] font-black border-2 border-black hover:bg-black hover:text-white transition flex items-center gap-2 uppercase">
+                    <!-- Logo WhatsApp ukuran pas -->
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.45-1.272.61-1.447c.159-.175.347-.219.463-.219.116 0 .232.001.334.006.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289-.087.101-.182.225-.26.301-.087.087-.177.182-.076.358.101.175.449.742.964 1.201.662.591 1.221.774 1.394.861.173.087.274.072.374-.043.101-.116.433-.506.549-.68.116-.173.232-.144.391-.087.159.058 1.003.473 1.175.559.173.087.289.13.332.202.043.072.043.418-.101.823z"/></svg>
+                    Channel
                 </a>
             </div>
         </div>
@@ -76,14 +247,39 @@
         </div>
     </main>
     <footer class="py-20 flex flex-col items-center border-t border-black bg-white mt-20">
-        <p class="text-[10px] font-black uppercase tracking-[0.4em] mb-10 opacity-30">The Architect</p>
-        <a href="https://github.com/alip-jmbd" target="_blank" class="flex items-center gap-5 p-5 border-2 border-black bg-white hover:bg-black group transition">
-            <img src="https://github.com/alip-jmbd.png" class="w-14 h-14 border border-black grayscale group-hover:grayscale-0 transition">
-            <div>
-                <p class="font-bold text-sm tracking-tight group-hover:text-white">LippWangsaff</p>
-                <p class="text-[10px] font-bold text-gray-400 group-hover:text-gray-500 underline">@alip-jmbd</p>
-            </div>
-        </a>
+        <p class="text-[10px] font-black uppercase tracking-[0.4em] mb-10 opacity-30">The Architects</p>
+        
+        <!-- Baris pertama: AlipWangsaff (kiri) dan Elaina (kanan) - ukuran lebih kecil -->
+        <div class="architect-row">
+            <!-- AlipWangsaff - Kiri -->
+            <a href="https://github.com/alip-jmbd" target="_blank" class="flex items-center gap-5 p-5 border-2 border-black bg-white hover:bg-black group transition architect-card">
+                <img src="https://github.com/alip-jmbd.png" class="w-14 h-14 border border-black grayscale group-hover:grayscale-0 transition">
+                <div>
+                    <p class="font-bold text-sm tracking-tight group-hover:text-white">AqilWangsaff</p>
+                    <p class="text-[10px] font-bold text-gray-400 group-hover:text-gray-500 underline">@aqil-jmbd</p>
+                </div>
+            </a>
+            
+            <!-- Elaina - Kanan -->
+            <a href="https://github.com/elaina" target="_blank" class="flex items-center gap-5 p-5 border-2 border-black bg-white hover:bg-black group transition architect-card">
+                <img src="https://github.com/elaina.png" class="w-14 h-14 border border-black grayscale group-hover:grayscale-0 transition">
+                <div>
+                    <p class="font-bold text-sm tracking-tight group-hover:text-white">Daffa</p>
+                    <p class="text-[10px] font-bold text-gray-400 group-hover:text-gray-500 underline">@dazikun</p>
+                </div>
+            </a>
+        </div>
+        
+        <!-- Baris kedua: NefuSoft di bawah sendiri - ukuran lebih kecil -->
+        <div class="architect-bottom">
+            <a href="https://github.com/nefusoft" target="_blank" class="flex items-center gap-5 p-5 border-2 border-black bg-white hover:bg-black group transition architect-card">
+                <img src="https://github.com/nefusoft.png" class="w-14 h-14 border border-black grayscale group-hover:grayscale-0 transition">
+                <div>
+                    <p class="font-bold text-sm tracking-tight group-hover:text-white">Cipaaa</p>
+                    <p class="text-[10px] font-bold text-gray-400 group-hover:text-gray-500 underline">@cipaaj</p>
+                </div>
+            </a>
+        </div>
     </footer>
     <script>
         async function fetchStats() {
@@ -97,6 +293,25 @@
             } catch(e) { console.error("Stats Error"); }
         }
         fetchStats();
+
+        // Dark mode toggle functionality
+        const toggle = document.getElementById('darkModeToggle');
+        
+        // Check local storage for dark mode preference
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            toggle.checked = true;
+        }
+
+        toggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        });
     </script>
 </body>
 </html>
